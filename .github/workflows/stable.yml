@@ -1,0 +1,48 @@
+name: Stable
+on: [push]
+
+env:
+  CARGO_NET_GIT_FETCH_WITH_CLI: false
+  GIT_TERMINAL_PROMPT: 0
+  
+jobs:
+
+  build-win-x64:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Install latest rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          default: true
+          override: true
+
+      - name: Build
+        run: |
+          rustup update
+          cargo clean
+          cargo build --release
+      - name: Upload win-x64
+        uses: actions/upload-artifact@v4.3.0
+        with: 
+          name: event-security_win_x64.exe
+          path: target/release/event-security.exe
+
+      - name: Build
+        run: |
+          rustup update
+          cargo clean
+          rustup target install i686-pc-windows-msvc
+          cargo build --release --target=i686-pc-windows-msvc
+          
+      - name: Upload win-x64
+        uses: actions/upload-artifact@v4.3.0
+        with: 
+          name: event-security_win_x86.exe
+          path: target/i686-pc-windows-msvc/release/event-security.exe
+          
+          
