@@ -1,0 +1,126 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Main gradient -->
+    <linearGradient id="mainGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E88E5;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#1565C0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0D47A1;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Secondary gradient for accents -->
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F44336;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Background gradient -->
+    <radialGradient id="bgGradient" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F5F5F5;stop-opacity:1" />
+    </radialGradient>
+    
+    <!-- Subtle shadow -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#000000" flood-opacity="0.15"/>
+    </filter>
+    
+    <!-- Inner shadow for depth -->
+    <filter id="innerShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feOffset dx="0" dy="2"/>
+      <feGaussianBlur stdDeviation="3" result="offset-blur"/>
+      <feFlood flood-color="#000000" flood-opacity="0.1"/>
+      <feComposite in2="offset-blur" operator="in"/>
+      <feMerge> 
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/> 
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#bgGradient)" stroke="#E0E0E0" stroke-width="2"/>
+  
+  <!-- Main monitor/screen shape -->
+  <g filter="url(#softShadow)">
+    <!-- Monitor base -->
+    <rect x="120" y="280" width="272" height="40" rx="8" fill="#37474F"/>
+    
+    <!-- Monitor stand -->
+    <rect x="230" y="280" width="52" height="60" rx="4" fill="#455A64"/>
+    
+    <!-- Monitor screen -->
+    <rect x="140" y="120" width="232" height="174" rx="16" fill="url(#mainGradient)"/>
+    
+    <!-- Screen bezel -->
+    <rect x="140" y="120" width="232" height="174" rx="16" fill="none" stroke="#0D47A1" stroke-width="3"/>
+    
+    <!-- Inner screen -->
+    <rect x="160" y="140" width="192" height="134" rx="8" fill="#1A237E"/>
+  </g>
+  
+  <!-- Shield icon on screen -->
+  <g transform="translate(256, 207)">
+    <!-- Shield background -->
+    <path d="M 0 -40 
+             C -25 -40, -40 -25, -40 -15
+             L -40 15
+             C -40 35, -20 50, 0 60
+             C 20 50, 40 35, 40 15
+             L 40 -15
+             C 40 -25, 25 -40, 0 -40 Z" 
+             fill="#FFFFFF" 
+             opacity="0.95"/>
+    
+    <!-- Shield checkmark -->
+    <g stroke="#4CAF50" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M -12 0 L -4 8 L 16 -12"/>
+    </g>
+  </g>
+  
+  <!-- Status indicators (small dots) -->
+  <g fill="url(#accentGradient)">
+    <circle cx="180" cy="160" r="6" opacity="0.8">
+      <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="200" cy="160" r="6" opacity="0.6">
+      <animate attributeName="opacity" values="0.6;0.9;0.6" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="220" cy="160" r="6" opacity="0.4">
+      <animate attributeName="opacity" values="0.4;0.8;0.4" dur="2s" begin="1s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Network activity indicator -->
+  <g transform="translate(320, 180)">
+    <rect x="-15" y="-8" width="30" height="16" rx="8" fill="#FFFFFF" opacity="0.2"/>
+    <rect x="-12" y="-3" width="8" height="6" rx="1" fill="#4CAF50"/>
+    <rect x="-2" y="-5" width="8" height="10" rx="1" fill="#4CAF50"/>
+    <rect x="8" y="-2" width="8" height="4" rx="1" fill="#4CAF50"/>
+  </g>
+  
+  <!-- Firewall icon in corner -->
+  <g transform="translate(340, 240)">
+    <circle r="20" fill="url(#accentGradient)" opacity="0.9"/>
+    <g stroke="#FFFFFF" stroke-width="3" stroke-linecap="round">
+      <!-- Brick pattern for firewall -->
+      <line x1="-12" y1="-8" x2="12" y2="-8"/>
+      <line x1="-12" y1="-3" x2="12" y2="-3"/>
+      <line x1="-12" y1="2" x2="12" y2="2"/>
+      <line x1="-12" y1="7" x2="12" y2="7"/>
+      <line x1="-6" y1="-11" x2="-6" y2="-5"/>
+      <line x1="6" y1="-5" x2="6" y2="1"/>
+      <line x1="-6" y1="5" x2="-6" y2="10"/>
+    </g>
+  </g>
+  
+  <!-- Clean corner accent -->
+  <g fill="#1E88E5" opacity="0.3">
+    <circle cx="140" cy="140" r="4"/>
+    <circle cx="372" cy="140" r="4"/>
+    <circle cx="140" cy="274" r="4"/>
+    <circle cx="372" cy="274" r="4"/>
+  </g>
+  
+  <!-- Subtle highlight on monitor -->
+  <rect x="160" y="140" width="40" height="20" rx="4" fill="#FFFFFF" opacity="0.1"/>
+</svg>

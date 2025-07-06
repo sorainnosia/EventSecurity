@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventSecurity 1.0</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .stats h2 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .blocked-count {
+            font-size: 2em;
+            color: #d32f2f;
+            font-weight: bold;
+        }
+
+        .table-container {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-header {
+            background: linear-gradient(45deg, #2196F3, #1976D2);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .blocked-list {
+            flex: 1;
+            overflow-y: auto;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .blocked-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 12px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .blocked-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .blocked-item:last-child {
+            border-bottom: none;
+        }
+
+        .ip-address {
+            color: #d32f2f;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+        }
+
+        .datetime {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #666;
+            padding: 40px;
+            font-style: italic;
+        }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        /* Scrollbar styling */
+        .blocked-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .blocked-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .blocked-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        .blocked-list::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        .refresh-indicator {
+            color: #666;
+            font-size: 0.8em;
+            text-align: center;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status-indicator" title="EventSecurity is running"></div>
+        
+        <div class="header">
+            <h1>Event Security 1.0</h1>
+        </div>
+        
+        <div class="stats">
+            <h2>Total Requests Blocked:</h2>
+            <div class="blocked-count" id="blockedCount">0</div>
+        </div>
+        
+        <div class="table-container">
+            <div class="table-header">
+                <div>IP Address</div>
+                <div>Date & Time Blocked</div>
+            </div>
+            
+            <div class="refresh-indicator">
+                Auto-refreshing every 5 seconds...
+            </div>
+            
+            <div class="blocked-list" id="blockedList">
+                <div class="no-data">No blocked IPs yet. EventSecurity is monitoring...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { invoke, listen } = window.__TAURI__.tauri;
+
+        let blockedIPs = [];
+
+        async function updateBlockedIPs() {
+            try {
+                blockedIPs = await invoke('get_blocked_ips');
+                const count = await invoke('get_blocked_count');
+                
+                document.getElementById('blockedCount').textContent = count;
+                
+                const blockedList = document.getElementById('blockedList');
+                
+                if (blockedIPs.length === 0) {
+                    blockedList.innerHTML = '<div class="no-data">No blocked IPs yet. EventSecurity is monitoring...</div>';
+                } else {
+                    blockedList.innerHTML = blockedIPs.map(item => `
+                        <div class="blocked-item">
+                            <div class="ip-address">${item.ip}</div>
+                            <div class="datetime">${item.datetime}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error updating blocked IPs:', error);
+            }
+        }
+
+        // Listen for real-time updates from the backend
+        async function setupEventListeners() {
+            await listen('blocked_ip_updated', (event) => {
+                blockedIPs = event.payload;
+                const count = blockedIPs.length;
+                
+                document.getElementById('blockedCount').textContent = count;
+                
+                const blockedList = document.getElementById('blockedList');
+                
+                if (blockedIPs.length === 0) {
+                    blockedList.innerHTML = '<div class="no-data">No blocked IPs yet. EventSecurity is monitoring...</div>';
+                } else {
+                    blockedList.innerHTML = blockedIPs.map(item => `
+                        <div class="blocked-item">
+                            <div class="ip-address">${item.ip}</div>
+                            <div class="datetime">${item.datetime}</div>
+                        </div>
+                    `).join('');
+                }
+            });
+        }
+
+        // Initialize the application
+        async function init() {
+            await updateBlockedIPs();
+            await setupEventListeners();
+            
+            // Update every 5 seconds as backup
+            setInterval(updateBlockedIPs, 5000);
+        }
+
+        // Start the application when the page loads
+        window.addEventListener('DOMContentLoaded', init);
+
+        // Handle window minimize on close attempt
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+    </script>
+</body>
+</html>
