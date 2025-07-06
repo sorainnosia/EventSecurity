@@ -24,6 +24,7 @@ jobs:
       - name: Build
         run: |
           rustup update
+          cd src-tauri
           cargo clean
           cargo build --release
       - name: Upload win-x64
@@ -35,6 +36,7 @@ jobs:
       - name: Build
         run: |
           rustup update
+          cd src-tauri
           cargo clean
           rustup target install i686-pc-windows-msvc
           cargo build --release --target=i686-pc-windows-msvc
